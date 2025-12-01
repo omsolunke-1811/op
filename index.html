@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mind & Body Health Checker (Awareness Only)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-soft: #e0ecff;
+      --bg: #eef2ff;
+      --card-bg: #ffffff;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --danger: #dc2626;
+      --warning: #f97316;
+      --success: #16a34a;
+      --radius-lg: 18px;
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #dbeafe, #eef2ff 40%, #e5e7eb 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .app-shell {
+      max-width: 1200px;
+      width: 100%;
+      padding: 24px 16px 32px;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .app-shell {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .left-panel, .right-panel {
+      background: rgba(255,255,255,0.85);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      padding: 20px 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .logo-circle {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 26px;
+      box-shadow: 0 8px 20px rgba(37,99,235,0.4);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #ecfdf3;
+      color: #15803d;
+      font-size: 11px;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-weight: 600;
+      font-size: 15px;
+      margin: 12px 0 6px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 14px 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 16px rgba(15,23,42,0.08);
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .grid-cats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .cat-card {
+      border-radius: 16px;
+      padding: 10px 10px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: #f9fafb;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .cat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(15,23,42,0.18);
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    .cat-icon {
+      font-size: 22px;
+    }
+
+    .cat-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .cat-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    label {
+      font-size: 13px;
+      display: block;
+      margin-top: 8px;
+    }
+
+    input[type="number"], input[type="text"], textarea {
+      width: 100%;
+      padding: 8px 9px;
+      margin-top: 4px;
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.8);
+      font-size: 13px;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      background: #f9fafb;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+      background: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 50px;
+    }
+
+    .inline-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .chip-radio {
+      position: relative;
+    }
+
+    .chip-radio input {
+      display: none;
+    }
+
+    .chip-radio label {
+      margin-top: 0;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.8);
+      cursor: pointer;
+      font-size: 12px;
+      background: #f9fafb;
+      transition: all 0.15s ease;
+    }
+
+    .chip-radio input:checked + label {
+      background: #2563eb;
+      border-color: #1d4ed8;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(37,99,235,0.4);
+    }
+
+    .question-card {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .question-card.active {
+      display: flex;
+      animation: slideUp 0.35s ease;
+    }
+
+    .question-step {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .question-text {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .answers {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .answer-option {
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid rgba(148,163,184,0.8);
+      font-size: 13px;
+      cursor: pointer;
+      background: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s ease;
+    }
+
+    .answer-option:hover {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    .answer-option.selected {
+      background: #2563eb;
+      border-color: #1d4ed8;
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(37,99,235,0.45);
+    }
+
+    .answer-tag {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    .buttons-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 7px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(37,99,235,0.5);
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .badge-pill {
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 10px;
+      background: #fee2e2;
+      color: #b91c1c;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-pill.safe {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .disclaimer {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .illustration {
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .illustration img {
+      width: 100%;
+      display: block;
+      height: 210px;
+      object-fit: cover;
+      transform: scale(1.02);
+    }
+
+    .illus-badge {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      background: rgba(15,23,42,0.85);
+      color: #e5e7eb;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .result-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
+    .result-text {
+      font-size: 12px;
+      color: #111827;
+      white-space: pre-wrap;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- LEFT: inputs and questions -->
+  <div class="left-panel">
+    <div class="header">
+      <div class="logo-circle">🩺</div>
+      <div>
+        <h1>Health Plus</h1>
+        <div class="subtitle">
+          Quick awareness check for common symptoms. <strong>Not a diagnosis.</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="badge">⚕️ Awareness tool • Not a replacement for a doctor</div>
+
+    <!-- Basic info -->
+    <div class="card">
+      <div class="section-title">1. Basic information</div>
+      <small class="subtitle">Optional but helps give better safety advice.</small>
+
+      <label>Age (years)
+        <input type="number" id="ageInput" placeholder="e.g. 24">
+      </label>
+
+      <label>Gender</label>
+      <div class="inline-group">
+        <div class="chip-radio">
+          <input type="radio" name="gender" id="genderMale" value="Male">
+          <label for="genderMale">Male</label>
+        </div>
+        <div class="chip-radio">
+          <input type="radio" name="gender" id="genderFemale" value="Female">
+          <label for="genderFemale">Female</label>
+        </div>
+        <div class="chip-radio">
+          <input type="radio" name="gender" id="genderOther" value="Other / prefer not to say">
+          <label for="genderOther">Other / prefer not to say</label>
+        </div>
+      </div>
+
+      <label>Previous health issues
+        <textarea id="historyInput"
+                  placeholder="e.g. diabetes, high BP, asthma, heart disease (optional)"></textarea>
+      </label>
+
+      <label>Current medicines
+        <textarea id="medsInput"
+                  placeholder="e.g. metformin, inhaler, BP tablets (optional)"></textarea>
+      </label>
+
+      <label>Smoking / tobacco</label>
+      <div class="inline-group">
+        <div class="chip-radio">
+          <input type="radio" name="smoke" id="smokeNo" value="No">
+          <label for="smokeNo">No</label>
+        </div>
+        <div class="chip-radio">
+          <input type="radio" name="smoke" id="smokeYes" value="Smokes">
+          <label for="smokeYes">Yes</label>
+        </div>
+        <div class="chip-radio">
+          <input type="radio" name="smoke" id="smokePast" value="Used to smoke">
+          <label for="smokePast">Used to</label>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        This basic info is stored only in your browser and used to adjust the safety message.
+      </div>
+    </div>
+
+    <!-- Symptom selection -->
+    <div class="card" id="symptomSelection">
+      <div class="section-title">2. Choose the main problem</div>
+      <small class="subtitle">Pick the one bothering you the most right now.</small>
+
+      <div class="grid-cats">
+        <div class="cat-card" data-cat="CHEST">
+          <div class="cat-icon">❤️</div>
+          <div>
+            <div class="cat-name">Chest / heart pain</div>
+            <div class="cat-desc">Pressure, heaviness, spreading pain, chest discomfort.</div>
+          </div>
+        </div>
+        <div class="cat-card" data-cat="BREATHING">
+          <div class="cat-icon">🫁</div>
+          <div>
+            <div class="cat-name">Breathing / cough</div>
+            <div class="cat-desc">Shortness of breath, wheeze, tight chest.</div>
+          </div>
+        </div>
+        <div class="cat-card" data-cat="HEADACHE">
+          <div class="cat-icon">🤕</div>
+          <div>
+            <div class="cat-name">Headache / migraine</div>
+            <div class="cat-desc">Sudden, severe or unusual headaches.</div>
+          </div>
+        </div>
+        <div class="cat-card" data-cat="FEVER">
+          <div class="cat-icon">🤒</div>
+          <div>
+            <div class="cat-name">Fever / infection</div>
+            <div class="cat-desc">Fever with weakness, breathing issues, rash.</div>
+          </div>
+        </div>
+        <div class="cat-card" data-cat="STOMACH">
+          <div class="cat-icon">🥴</div>
+          <div>
+            <div class="cat-name">Stomach / digestion</div>
+            <div class="cat-desc">Severe pain, vomiting, blood in stool.</div>
+          </div>
+        </div>
+        <div class="cat-card" data-cat="JOINT">
+          <div class="cat-icon">🦴</div>
+          <div>
+            <div class="cat-name">Joint / back pain</div>
+            <div class="cat-desc">Injury, swelling, nerve symptoms, chronic pain.</div>
+          </div>
+        </div>
+        <div class="cat-card" data-cat="SKIN">
+          <div class="cat-icon">🥵</div>
+          <div>
+            <div class="cat-name">Skin / rash</div>
+            <div class="cat-desc">Spreading rash, blisters, painful skin problems.</div>
+          </div>
+        </div>
+        <div class="cat-card" data-cat="FATIGUE">
+          <div class="cat-icon">😴</div>
+          <div>
+            <div class="cat-name">Fatigue / low energy</div>
+            <div class="cat-desc">Long-term tiredness, weight change, breathlessness.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div class="card question-card" id="questionCard">
+      <div class="question-step" id="questionStep">Question 1 of 4</div>
+      <div class="question-text" id="questionText">Question text</div>
+
+      <div class="answers">
+        <div class="answer-option" data-value="0">
+          <span>No / very mild / rare</span>
+          <span class="answer-tag">Low concern for this question</span>
+        </div>
+        <div class="answer-option" data-value="1">
+          <span>Moderate or sometimes</span>
+          <span class="answer-tag">Gives some concern</span>
+        </div>
+        <div class="answer-option" data-value="2">
+          <span>Severe or often</span>
+          <span class="answer-tag">Stronger warning sign</span>
+        </div>
+      </div>
+
+      <div class="buttons-row">
+        <button class="btn btn-secondary" id="backBtn">Back</button>
+        <button class="btn btn-primary" id="nextBtn">Next</button>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      This tool is for education and awareness only. It cannot detect, confirm or rule out any disease.
+      If you feel seriously unwell or unsafe, treat it as an emergency and get real medical help.
+    </div>
+  </div>
+
+  <!-- RIGHT: result -->
+  <div class="right-panel">
+    <div class="illustration">
+      <img src="https://images.pexels.com/photos/4226221/pexels-photo-4226221.jpeg?auto=compress&cs=tinysrgb&w=1200"
+           alt="Health illustration">
+      <div class="illus-badge">
+        <span>🧑‍⚕️</span>
+        <span>Awareness only • No diagnosis</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Result & guidance</div>
+      <div class="result-section-title">Profile (self-reported)</div>
+      <div class="result-text" id="profileText">
+        Fill your details and start a check to see a personalised summary here.
+      </div>
+
+      <div class="result-section-title">Risk awareness</div>
+      <div class="result-text" id="riskText">
+        Choose a symptom category and answer the questions to generate a risk explanation.
+      </div>
+
+      <div class="result-section-title">Exercise suggestions</div>
+      <div class="result-text" id="exerciseText">
+        Basic movement tips suited to your main symptom will appear here.
+      </div>
+
+      <div class="result-section-title">Food suggestions</div>
+      <div class="result-text" id="foodText">
+        General guidance on what to eat more of, and what to limit, will appear here.
+      </div>
+
+      <div style="margin-top:8px;">
+        <span class="badge-pill safe">✅ Educational only</span>
+        <span class="badge-pill" style="margin-left:6px;">🚨 Not a replacement for a doctor</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const QUESTION_SETS = {
+    CHEST: [
+      "Is your chest pain heavy, tight, or like a pressure in the centre of your chest?",
+      "Does the pain spread to your arm, jaw, neck or back?",
+      "Do you feel short of breath along with the chest pain?",
+      "Do you feel sweating, nausea, or a strong sense that 'something is very wrong'?"
+    ],
+    BREATHING: [
+      "Do you feel short of breath even at rest or with very little movement?",
+      "Do you hear wheezing or whistling sounds when breathing?",
+      "Do you have chest tightness or pain when breathing deeply?",
+      "Did the breathlessness start suddenly or become severe quickly?"
+    ],
+    HEADACHE: [
+      "Is this headache the worst you have ever felt?",
+      "Did the headache start very suddenly (within seconds)?",
+      "Do you have fever, neck stiffness, confusion or seizures with the headache?",
+      "Do you have weakness, trouble speaking, or vision changes with the headache?"
+    ],
+    FEVER: [
+      "Has your fever lasted more than 3 days?",
+      "Do you have difficulty breathing, chest pain or very fast breathing with the fever?",
+      "Do you feel extremely weak, dizzy or unable to drink enough fluids?",
+      "Do you have a rash, very severe headache or neck stiffness with the fever?"
+    ],
+    STOMACH: [
+      "Is your stomach pain very severe and constant?",
+      "Is your stool black / very dark and sticky, or is there blood in vomit or stool?",
+      "Is the pain mainly on one side (like right lower side) and worse when moving or pressing?",
+      "Have you had strong pain, vomiting or fever for more than 24 hours?"
+    ],
+    JOINT: [
+      "Is joint or back pain sudden and very severe after injury or fall?",
+      "Is there redness, heat and big swelling in one joint?",
+      "Do you have back pain with loss of bladder / bowel control or weakness in legs?",
+      "Has joint/back pain lasted more than 3 months and limits your daily work?"
+    ],
+    SKIN: [
+      "Is there a rapidly spreading rash with swelling of lips, tongue or trouble breathing?",
+      "Is there rash with high fever or you feel very unwell?",
+      "Do you have very painful blisters, open sores or rapidly spreading redness?",
+      "Has a skin problem lasted more than 4 weeks without improving?"
+    ],
+    FATIGUE: [
+      "Have you felt very tired or weak for more than 2 weeks?",
+      "Have you had noticeable weight loss or gain without trying?",
+      "Do you get breathless or feel heart racing with simple activity?",
+      "Do you already have diabetes, thyroid, heart or kidney disease?"
+    ]
+  };
+
+  const state = {
+    category: null,
+    questions: [],
+    currentIndex: 0,
+    riskScore: 0,
+    selectedValue: null,
+    extraRiskProfile: false
+  };
+
+  const symptomSelection = document.getElementById('symptomSelection');
+  const questionCard = document.getElementById('questionCard');
+  const questionStep = document.getElementById('questionStep');
+  const questionText = document.getElementById('questionText');
+  const answerOptions = Array.from(document.querySelectorAll('.answer-option'));
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  const profileText = document.getElementById('profileText');
+  const riskText = document.getElementById('riskText');
+  const exerciseText = document.getElementById('exerciseText');
+  const foodText = document.getElementById('foodText');
+
+  function getBasicProfile() {
+    const ageStr = document.getElementById('ageInput').value.trim();
+    const history = document.getElementById('historyInput').value.trim() || "Not specified";
+    const meds = document.getElementById('medsInput').value.trim() || "Not specified";
+
+    let age = null;
+    if (ageStr) {
+      const parsed = parseInt(ageStr, 10);
+      if (!isNaN(parsed) && parsed > 0 && parsed < 130) age = parsed;
+    }
+
+    const genderRadio = document.querySelector('input[name="gender"]:checked');
+    const gender = genderRadio ? genderRadio.value : "Not specified";
+
+    const smokeRadio = document.querySelector('input[name="smoke"]:checked');
+    const smokeStatus = smokeRadio ? smokeRadio.value : "Not specified";
+
+    state.extraRiskProfile = false;
+    if (age !== null && age >= 40) state.extraRiskProfile = true;
+    if (history !== "Not specified") state.extraRiskProfile = true;
+    if (smokeStatus === "Smokes" || smokeStatus === "Used to smoke") state.extraRiskProfile = true;
+
+    let profile = "Profile (self-reported): ";
+    if (age !== null) profile += age + " years, ";
+    profile += gender + "\n";
+    profile += "Previous health issues: " + history + "\n";
+    profile += "Current medicines: " + meds + "\n";
+    profile += "Smoking / tobacco: " + smokeStatus;
+
+    return profile;
+  }
+
+  function startCategory(catKey) {
+    state.category = catKey;
+    state.questions = QUESTION_SETS[catKey];
+    state.currentIndex = 0;
+    state.riskScore = 0;
+    state.selectedValue = null;
+
+    symptomSelection.style.display = 'none';
+    questionCard.classList.add('active');
+    updateQuestionUI();
+  }
+
+  function updateQuestionUI() {
+    const idx = state.currentIndex;
+    questionText.textContent = state.questions[idx];
+    questionStep.textContent = `Question ${idx + 1} of ${state.questions.length}`;
+    nextBtn.textContent = idx === state.questions.length - 1 ? "Finish" : "Next";
+
+    state.selectedValue = null;
+    answerOptions.forEach(opt => opt.classList.remove('selected'));
+  }
+
+  function handleAnswerClick(e) {
+    const value = parseInt(e.currentTarget.dataset.value, 10);
+    state.selectedValue = value;
+    answerOptions.forEach(opt => opt.classList.remove('selected'));
+    e.currentTarget.classList.add('selected');
+  }
+
+  function goNext() {
+    if (state.selectedValue === null) {
+      alert("Please select an option first.");
+      return;
+    }
+    state.riskScore += state.selectedValue;
+
+    if (state.currentIndex < state.questions.length - 1) {
+      state.currentIndex += 1;
+      updateQuestionUI();
+    } else {
+      showResults();
+    }
+  }
+
+  function goBack() {
+    if (questionCard.classList.contains('active')) {
+      questionCard.classList.remove('active');
+      symptomSelection.style.display = 'block';
+    }
+  }
+
+  function buildRiskSummary(ratio) {
+    let sb = "Risk awareness (NOT a diagnosis):\n\n";
+    const cat = state.category;
+
+    if (cat === "CHEST") {
+      if (ratio >= 0.5) {
+        sb += "Your chest pain answers show several warning signs. " +
+          "Chest pain with heaviness, spreading pain, breathlessness, sweating or nausea " +
+          "can signal a heart or lung emergency.\n\n" +
+          "→ Treat this as URGENT. Seek emergency medical help immediately.";
+      } else {
+        sb += "This quick check did not show many strong chest-pain warning signs, " +
+          "but any chest pain deserves proper medical evaluation.\n\n" +
+          "→ If pain returns, worsens, or you feel unwell, see a doctor soon.";
+      }
+    } else if (cat === "BREATHING") {
+      if (ratio >= 0.5) {
+        sb += "Your breathing answers include strong warning features " +
+          "(severe or sudden breathlessness, wheezing, chest tightness).\n\n" +
+          "→ This can be serious (asthma attack, lung infection, allergy). Seek urgent medical help.";
+      } else {
+        sb += "Your breathing difficulty looks milder in this short check, " +
+          "but any ongoing breathing problem should still be checked by a doctor.";
+      }
+    } else if (cat === "HEADACHE") {
+      if (ratio >= 0.5) {
+        sb += "Your headache answers have several red flags " +
+          "(very sudden, very severe, with fever, neck stiffness, confusion or weakness).\n\n" +
+          "→ These can be emergency signs. Seek urgent medical care.";
+      } else {
+        sb += "Your headache does not show major red flags in this quick check, " +
+          "but frequent or disabling headaches should be discussed with a doctor.";
+      }
+    } else if (cat === "FEVER") {
+      if (ratio >= 0.5) {
+        sb += "Your fever pattern looks concerning (long duration, trouble breathing, very weak, " +
+          "rash or severe headache).\n\n" +
+          "→ You should see a doctor quickly for proper tests.";
+      } else {
+        sb += "Your fever answers look moderate. Keep hydrated, rest, and monitor closely.\n" +
+          "→ If fever lasts more than a few days or gets worse, see a doctor.";
+      }
+    } else if (cat === "STOMACH") {
+      if (ratio >= 0.5) {
+        sb += "Your stomach-pain answers show several danger signs (very severe pain, blood in stool/vomit, " +
+          "black stool, localised strong pain).\n\n" +
+          "→ This can be serious. Seek urgent medical help.";
+      } else {
+        sb += "Your stomach pain looks less dangerous in this quick check, " +
+          "but persistent or worsening pain always needs medical review.";
+      }
+    } else if (cat === "JOINT") {
+      if (ratio >= 0.5) {
+        sb += "Your joint/back-pain answers include serious features (big trauma, heavy swelling, " +
+          "nerve problems, or long-standing severe pain).\n\n" +
+          "→ You should see a doctor or orthopaedic specialist soon.";
+      } else {
+        sb += "Your bone/joint/back pain looks like a mild–moderate pattern. " +
+          "Physiotherapy, posture care and weight management often help, but get checked if pain persists.";
+      }
+    } else if (cat === "SKIN") {
+      if (ratio >= 0.5) {
+        sb += "Your skin answers show strong warning signs (very painful blisters, rapid spread, " +
+          "with fever or breathing trouble).\n\n" +
+          "→ Seek urgent medical care.";
+      } else {
+        sb += "Your skin problem seems less dangerous in this check. " +
+          "If it lasts more than a few weeks or keeps coming back, see a doctor or dermatologist.";
+      }
+    } else {
+      if (ratio >= 0.5) {
+        sb += "Your fatigue/weakness answers suggest possible underlying issues " +
+          "(anaemia, thyroid, diabetes, heart/kidney problems, vitamin deficiency, etc.).\n\n" +
+          "→ A full health check-up with blood tests and examination would be sensible.";
+      } else {
+        sb += "Your fatigue pattern is milder in this check, but long-term low energy still deserves attention. " +
+          "Sleep, stress, food quality and activity levels are key factors.";
+      }
+    }
+
+    if (state.extraRiskProfile && ratio >= 0.5) {
+      sb += "\n\nBecause of your age or previous health risks, it is especially important not to delay seeing a doctor.";
+    }
+
+    return sb;
+  }
+
+  function buildExerciseAdvice() {
+    const cat = state.category;
+    if (cat === "CHEST" || cat === "BREATHING") {
+      return "• Do NOT start heavy exercise without medical clearance.\n" +
+        "• After a doctor says your heart/lungs are okay, start with:\n" +
+        "  – Slow walking on flat ground\n" +
+        "  – Simple breathing exercises (deep slow breathing, pursed-lip breathing)\n" +
+        "  – Very gentle stretching of chest and shoulder muscles.";
+    } else if (cat === "JOINT" || cat === "STOMACH") {
+      return "• Avoid heavy lifting or high-impact sports until pain is checked.\n" +
+        "• Safer options:\n" +
+        "  – Gentle walking\n" +
+        "  – Light stretching of back and leg muscles\n" +
+        "  – Basic yoga like cat–cow, child’s pose (if comfortable).";
+    } else if (cat === "FATIGUE") {
+      return "• Start very small and slow:\n" +
+        "  – 10–15 minutes of easy walking most days\n" +
+        "  – Light stretching after sitting long\n" +
+        "  – A few simple bodyweight moves (wall push-ups, sit-to-stand) if you feel okay.\n" +
+        "• Increase only if your body tolerates it and your doctor agrees.";
+    } else {
+      return "• During strong symptoms, rest is more important than exercise.\n" +
+        "• After recovery, general helpful moves are:\n" +
+        "  – Regular walking\n" +
+        "  – Gentle neck and shoulder stretches (for tension headaches)\n" +
+        "  – Light yoga or relaxation-based exercises.";
+    }
+  }
+
+  function buildFoodAdvice() {
+    const cat = state.category;
+    if (cat === "CHEST" || cat === "BREATHING") {
+      return "Eat more:\n" +
+        "• Home-cooked meals with vegetables, fruits, whole grains\n" +
+        "• Healthy fats (nuts, seeds, small amounts of good oils)\n\n" +
+        "Limit:\n" +
+        "• Very salty food (chips, pickles, processed meats)\n" +
+        "• Deep-fried fast food and trans fats\n" +
+        "• Sugary drinks and heavy late-night meals.";
+    } else if (cat === "STOMACH") {
+      return "Eat more:\n" +
+        "• Light, easily digestible foods (khichdi, dal-rice, boiled vegetables, curd)\n" +
+        "• Plenty of water (unless doctor limited fluids)\n\n" +
+        "Avoid:\n" +
+        "• Very spicy, oily or fried food\n" +
+        "• Excess tea/coffee, carbonated and energy drinks\n" +
+        "• Overeating or lying down immediately after eating.";
+    } else if (cat === "JOINT") {
+      return "Eat more:\n" +
+        "• Fruits and vegetables rich in colour (antioxidants)\n" +
+        "• Protein sources: dal, beans, curd, paneer, eggs, lean meat if you eat it\n" +
+        "• Omega-3 rich foods: flax seeds, walnuts, fatty fish (if part of your diet)\n\n" +
+        "Limit:\n" +
+        "• Processed junk food\n" +
+        "• Excess sugar and soft drinks\n" +
+        "• Large amounts of alcohol (damages joints and overall health).";
+    } else if (cat === "FATIGUE") {
+      return "Eat more:\n" +
+        "• Iron-rich foods: green leafy vegetables, dals, beans, jaggery, nuts\n" +
+        "• B12 & folate sources: dairy, eggs, dals, fortified foods (if suitable for you)\n" +
+        "• Regular balanced meals instead of only snacks\n\n" +
+        "Avoid:\n" +
+        "• Skipping meals then overeating later\n" +
+        "• Too much sugar and energy drinks (short boost, then crash)\n" +
+        "• Depending only on junk food.";
+    } else if (cat === "FEVER") {
+      return "Eat more:\n" +
+        "• Water, ORS, soups, coconut water (to avoid dehydration)\n" +
+        "• Light foods: khichdi, boiled potatoes, dal, curd, fruits like banana\n\n" +
+        "Avoid:\n" +
+        "• Heavy fried or very spicy foods\n" +
+        "• Alcohol and smoking\n" +
+        "• Very cold drinks if they irritate your throat.";
+    } else {
+      return "General helpful pattern:\n" +
+        "• Plenty of water through the day\n" +
+        "• Mostly home-cooked meals with vegetables, fruits, whole grains and pulses\n" +
+        "• Healthy fats from nuts and seeds\n\n" +
+        "Limit:\n" +
+        "• Processed and packaged junk food\n" +
+        "• Too much sugar, soft drinks and energy drinks\n" +
+        "• Very large, heavy late-night meals.";
+    }
+  }
+
+  function showResults() {
+    const maxRisk = state.questions.length * 2;
+    const ratio = maxRisk === 0 ? 0 : state.riskScore / maxRisk;
+
+    profileText.textContent = getBasicProfile();
+    riskText.textContent = buildRiskSummary(ratio);
+    exerciseText.textContent = buildExerciseAdvice();
+    foodText.textContent = buildFoodAdvice();
+
+    questionCard.classList.remove('active');
+    symptomSelection.style.display = 'block';
+  }
+
+  document.querySelectorAll('.cat-card').forEach(card => {
+    card.addEventListener('click', () => startCategory(card.dataset.cat));
+  });
+
+  answerOptions.forEach(opt => {
+    opt.addEventListener('click', handleAnswerClick);
+  });
+
+  nextBtn.addEventListener('click', goNext);
+  backBtn.addEventListener('click', goBack);
+</script>
+</body>
+</html>
